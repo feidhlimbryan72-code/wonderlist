@@ -211,7 +211,7 @@ export const TaskView: React.FC<TaskViewProps> = ({
                   w-full px-4 py-3 bg-white dark:bg-slate-800 rounded-xl text-left text-sm flex items-center justify-between gap-3 transition-all duration-150 cursor-pointer border border-slate-200 dark:border-slate-700/50 shadow-sm
                   ${isSelected 
                     ? 'border-blue-500/60 shadow-md ring-1 ring-blue-500/20 bg-slate-50 dark:bg-slate-950' 
-                    : 'hover:bg-slate-50 dark:hover:bg-slate-750/50'}
+                    : 'hover:bg-slate-50 dark:hover:bg-slate-700/50'}
                 `}
               >
                 <div className="flex items-center gap-3 flex-1 min-w-0">
@@ -288,7 +288,7 @@ export const TaskView: React.FC<TaskViewProps> = ({
                         w-full px-4 py-2.5 bg-white dark:bg-slate-800 rounded-xl text-left text-sm flex items-center justify-between gap-3 transition-all duration-150 cursor-pointer border border-slate-200 dark:border-slate-700/50 opacity-75 shadow-sm
                         ${isSelected 
                           ? 'border-blue-500/60 bg-slate-50 dark:bg-slate-950' 
-                          : 'hover:bg-slate-50 dark:hover:bg-slate-750/50'}
+                          : 'hover:bg-slate-50 dark:hover:bg-slate-700/50'}
                       `}
                     >
                       <div className="flex items-center gap-3 flex-1 min-w-0">
