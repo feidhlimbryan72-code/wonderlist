@@ -7,10 +7,8 @@ services:
     envVars:
       - key: VITE_SUPABASE_URL
         value: "https://your-project.supabase.co"
-        sync: false
       - key: VITE_SUPABASE_ANON_KEY
         value: "your-anon-key-here"
-        sync: false
     routes:
       - type: rewrite
         source: /*
