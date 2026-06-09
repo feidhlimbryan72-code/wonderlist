@@ -1,8 +1,18 @@
+-- ==========================================
+-- 0. CLEANUP (Allows running the script multiple times safely)
+-- ==========================================
+drop trigger if exists on_auth_user_created on auth.users;
+drop function if exists public.handle_new_user() cascade;
+drop table if exists public.tasks cascade;
+drop table if exists public.list_shares cascade;
+drop table if exists public.lists cascade;
+drop table if exists public.profiles cascade;
+
 -- Enable UUID extension if not already enabled
 create extension if not exists "uuid-ossp";
 
 -- ==========================================
--- 1. TABLE DEFINITIONS (Created first to prevent policy dependency errors)
+-- 1. TABLE DEFINITIONS
 -- ==========================================
 
 -- Create profiles table
