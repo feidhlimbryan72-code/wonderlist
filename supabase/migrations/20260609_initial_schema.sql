@@ -82,27 +82,27 @@ create or replace trigger on_auth_user_created
   after insert on auth.users
   for each row execute procedure public.handle_new_user();
 
--- Security Definer: Checks if user owns a list (bypasses RLS recursion)
-create or replace function public.is_list_owner(list_id uuid, user_id uuid)
+-- Security Definer: Checks if user owns a list (prefixed parameters to prevent column conflict)
+create or replace function public.is_list_owner(_list_id uuid, _user_id uuid)
 returns boolean as $$
 begin
   return exists (
     select 1 from public.lists
-    where id = $1 and owner_id = $2
+    where id = _list_id and owner_id = _user_id
   );
 end;
 $$ language plpgsql security definer;
 
--- Security Definer: Checks if user has access to list (owner or collaborator)
-create or replace function public.has_list_access(list_id uuid, user_id uuid, user_email text)
+-- Security Definer: Checks if user has access to list (prefixed parameters to prevent column conflict)
+create or replace function public.has_list_access(_list_id uuid, _user_id uuid, _user_email text)
 returns boolean as $$
 begin
   return exists (
     select 1 from public.lists
-    where id = $1 and owner_id = $2
+    where id = _list_id and owner_id = _user_id
   ) or exists (
     select 1 from public.list_shares
-    where list_id = $1 and invited_email = $3 and status = 'accepted'
+    where list_id = _list_id and invited_email = _user_email and status = 'accepted'
   );
 end;
 $$ language plpgsql security definer;
