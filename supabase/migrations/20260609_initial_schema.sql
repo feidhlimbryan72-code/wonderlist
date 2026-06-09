@@ -116,14 +116,15 @@ create policy "Users can update their own profile"
   on public.profiles for update
   using (auth.uid() = id);
 
--- Lists Policies (Recursion-free check)
+-- Lists Policies
+-- VIEW access: allowed if owner OR if invited (even if status is pending)
 create policy "Users can view lists they own or are shared with"
   on public.lists for select
   using (
     owner_id = auth.uid() or 
     id in (
       select list_id from public.list_shares 
-      where invited_email = auth.jwt()->>'email' and status = 'accepted'
+      where invited_email = auth.jwt()->>'email'
     )
   );
 
@@ -131,6 +132,7 @@ create policy "Users can create lists"
   on public.lists for insert
   with check (auth.uid() is not null);
 
+-- UPDATE access: only allowed if owner OR has an accepted share
 create policy "Users can update lists they own or are shared with"
   on public.lists for update
   using (
