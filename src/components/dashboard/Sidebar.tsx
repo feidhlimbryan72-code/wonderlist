@@ -36,8 +36,8 @@ export const Sidebar: React.FC<SidebarProps> = ({
       setNewListName('')
       setActiveListId(created.id)
       setIsMobileOpen(false)
-    } catch (err) {
-      alert('Failed to create list.')
+    } catch (err: any) {
+      alert('Failed to create list: ' + (err.message || err))
     }
   }
 
@@ -53,8 +53,8 @@ export const Sidebar: React.FC<SidebarProps> = ({
     try {
       await updateList({ id, name: editName.trim() })
       setEditingListId(null)
-    } catch (err) {
-      alert('Failed to rename list.')
+    } catch (err: any) {
+      alert('Failed to rename list: ' + (err.message || err))
     }
   }
 
@@ -71,8 +71,8 @@ export const Sidebar: React.FC<SidebarProps> = ({
         if (activeListId === list.id) {
           setActiveListId(undefined)
         }
-      } catch (err) {
-        alert('Failed to delete list.')
+      } catch (err: any) {
+        alert('Failed to delete list: ' + (err.message || err))
       }
     }
   }
@@ -81,8 +81,8 @@ export const Sidebar: React.FC<SidebarProps> = ({
     e.stopPropagation()
     try {
       await acceptInvite(inviteId)
-    } catch (err) {
-      alert('Failed to accept invitation.')
+    } catch (err: any) {
+      alert('Failed to accept invitation: ' + (err.message || err))
     }
   }
 
@@ -90,8 +90,8 @@ export const Sidebar: React.FC<SidebarProps> = ({
     e.stopPropagation()
     try {
       await declineInvite(inviteId)
-    } catch (err) {
-      alert('Failed to decline invitation.')
+    } catch (err: any) {
+      alert('Failed to decline invitation: ' + (err.message || err))
     }
   }
 
