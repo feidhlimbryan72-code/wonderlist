@@ -101,7 +101,7 @@ export const TaskDetailPanel: React.FC<TaskDetailPanelProps> = ({ task, listId, 
   })
 
   return (
-    <div className="w-full lg:w-96 glass-panel border-l border-slate-200/20 dark:border-white/5 h-full flex flex-col text-slate-800 dark:text-white">
+    <div className="w-full lg:w-96 bg-white dark:bg-slate-900 border-l border-slate-200 dark:border-slate-800 h-full flex flex-col text-slate-900 dark:text-white">
       
       {/* Detail Header */}
       <div className="p-4 border-b border-slate-200/20 dark:border-white/5 flex items-center justify-between">
@@ -140,7 +140,7 @@ export const TaskDetailPanel: React.FC<TaskDetailPanelProps> = ({ task, listId, 
             value={title}
             onChange={(e) => setTitle(e.target.value)}
             onBlur={handleTitleBlur}
-            className={`w-full bg-transparent border-0 focus:ring-0 text-lg font-bold p-0 placeholder-slate-400 focus:outline-none ${task.is_completed ? 'line-through text-slate-400' : ''}`}
+            className={`w-full bg-transparent border-0 focus:ring-0 text-lg font-bold p-0 text-slate-900 dark:text-white placeholder-slate-400 focus:outline-none ${task.is_completed ? 'line-through text-slate-400 dark:text-slate-500' : ''}`}
             placeholder="Rename task..."
           />
         </div>
@@ -185,7 +185,7 @@ export const TaskDetailPanel: React.FC<TaskDetailPanelProps> = ({ task, listId, 
             onBlur={handleNotesBlur}
             placeholder="Add a note..."
             rows={6}
-            className="w-full px-3.5 py-3 bg-slate-100/60 dark:bg-slate-800/40 border border-slate-300/40 dark:border-white/5 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500/50 text-slate-800 dark:text-white text-xs transition-all resize-none placeholder-slate-400"
+            className="w-full px-3.5 py-3 bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500/50 text-slate-900 dark:text-white text-xs transition-all resize-none placeholder-slate-400"
           />
         </div>
 

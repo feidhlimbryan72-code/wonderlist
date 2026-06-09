@@ -108,8 +108,8 @@ export const Sidebar: React.FC<SidebarProps> = ({
       {/* Sidebar Container */}
       <aside className={`
         fixed top-0 bottom-0 left-0 z-40 w-72 
-        glass-panel border-r border-slate-200/20 dark:border-white/5
-        flex flex-col text-slate-800 dark:text-white
+        bg-slate-50 dark:bg-slate-900 border-r border-slate-200 dark:border-slate-800
+        flex flex-col text-slate-900 dark:text-white
         transition-transform duration-300 ease-in-out
         lg:translate-x-0 lg:static lg:h-screen
         ${isMobileOpen ? 'translate-x-0' : '-translate-x-full'}
@@ -200,7 +200,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
                   w-full px-3 py-2.5 rounded-xl text-left text-sm font-medium flex items-center justify-between group cursor-pointer transition-all duration-150
                   ${isSelected 
                     ? 'bg-blue-600 text-white shadow-md shadow-blue-600/15' 
-                    : 'hover:bg-slate-200/50 dark:hover:bg-white/5 text-slate-700 dark:text-slate-200'}
+                    : 'hover:bg-slate-200/80 dark:hover:bg-slate-800 text-slate-800 dark:text-slate-200'}
                 `}
               >
                 <div className="flex items-center gap-2.5 flex-1 min-w-0">
