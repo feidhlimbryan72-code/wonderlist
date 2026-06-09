@@ -93,7 +93,7 @@ begin
 end;
 $$ language plpgsql security definer;
 
--- Security Definer: Checks if user has access to list (prefixed parameters to prevent column conflict)
+-- Security Definer: Checks if user has access to list (owner or collaborator)
 create or replace function public.has_list_access(_list_id uuid, _user_id uuid, _user_email text)
 returns boolean as $$
 begin
@@ -137,7 +137,7 @@ create policy "Users can view lists they own or are shared with"
 
 create policy "Users can create lists"
   on public.lists for insert
-  with check (owner_id = auth.uid());
+  with check (auth.uid() is not null);
 
 create policy "Users can update lists they own or are shared with"
   on public.lists for update
