@@ -137,7 +137,7 @@ export const TaskView: React.FC<TaskViewProps> = ({
               value={taskTitle}
               onChange={(e) => setTaskTitle(e.target.value)}
               placeholder="Add a task..."
-              className="flex-1 bg-transparent border-0 focus:ring-0 p-0 text-sm placeholder-slate-400 focus:outline-none"
+              className="flex-1 bg-transparent border-0 focus:ring-0 p-0 text-sm text-slate-900 dark:text-white placeholder-slate-400 focus:outline-none"
             />
             
             {/* Quick Due Date Button */}
@@ -152,7 +152,7 @@ export const TaskView: React.FC<TaskViewProps> = ({
               </button>
               
               {showDatePicker && (
-                <div className="absolute right-0 bottom-10 z-20 bg-white dark:bg-slate-900 border border-slate-200 dark:border-white/10 p-3 rounded-xl shadow-xl">
+                <div className="absolute right-0 top-10 z-30 bg-white dark:bg-slate-900 border border-slate-200 dark:border-white/10 p-3 rounded-xl shadow-xl">
                   <label className="text-[10px] font-bold text-slate-400 uppercase block mb-1">Due Date</label>
                   <input
                     type="date"
@@ -208,10 +208,10 @@ export const TaskView: React.FC<TaskViewProps> = ({
                 key={task.id}
                 onClick={() => onTaskClick(task)}
                 className={`
-                  w-full px-4 py-3 glass-panel rounded-xl text-left text-sm flex items-center justify-between gap-3 transition-all duration-150 cursor-pointer border
+                  w-full px-4 py-3 bg-white/80 dark:bg-slate-900/75 backdrop-blur-md rounded-xl text-left text-sm flex items-center justify-between gap-3 transition-all duration-150 cursor-pointer border
                   ${isSelected 
-                    ? 'border-blue-500/60 shadow-md ring-1 ring-blue-500/20 bg-white/80 dark:bg-slate-900/80' 
-                    : 'border-slate-200/20 hover:bg-white/50 dark:hover:bg-white/5'}
+                    ? 'border-blue-500/60 shadow-md ring-1 ring-blue-500/20 bg-white/95 dark:bg-slate-900/90' 
+                    : 'border-slate-200/20 dark:border-white/5 hover:bg-white/90 dark:hover:bg-slate-800/80'}
                 `}
               >
                 <div className="flex items-center gap-3 flex-1 min-w-0">
@@ -224,7 +224,7 @@ export const TaskView: React.FC<TaskViewProps> = ({
                   </button>
 
                   <div className="min-w-0 flex-1">
-                    <p className="font-medium truncate text-slate-800 dark:text-slate-200">{task.title}</p>
+                    <p className="font-semibold truncate text-slate-900 dark:text-white">{task.title}</p>
                     
                     {/* Meta info row */}
                     <div className="flex items-center gap-2 mt-1">
@@ -285,10 +285,10 @@ export const TaskView: React.FC<TaskViewProps> = ({
                       key={task.id}
                       onClick={() => onTaskClick(task)}
                       className={`
-                        w-full px-4 py-2.5 glass-panel rounded-xl text-left text-sm flex items-center justify-between gap-3 transition-all duration-150 cursor-pointer border opacity-75
+                        w-full px-4 py-2.5 bg-white/70 dark:bg-slate-900/65 backdrop-blur-md rounded-xl text-left text-sm flex items-center justify-between gap-3 transition-all duration-150 cursor-pointer border opacity-75
                         ${isSelected 
-                          ? 'border-blue-500/60 bg-white/70 dark:bg-slate-900/70' 
-                          : 'border-slate-200/20 hover:bg-white/40 dark:hover:bg-white/3'}
+                          ? 'border-blue-500/60 bg-white/90 dark:bg-slate-900/80' 
+                          : 'border-slate-200/20 dark:border-white/5 hover:bg-white/80 dark:hover:bg-slate-800/70'}
                       `}
                     >
                       <div className="flex items-center gap-3 flex-1 min-w-0">
@@ -301,7 +301,7 @@ export const TaskView: React.FC<TaskViewProps> = ({
                         </button>
 
                         <div className="min-w-0 flex-1">
-                          <p className="font-medium truncate text-slate-500 line-through strikethrough-active">{task.title}</p>
+                          <p className="font-semibold truncate text-slate-600 dark:text-slate-400 line-through strikethrough-active">{task.title}</p>
                           
                           {/* Meta info row */}
                           <div className="flex items-center gap-2 mt-0.5">

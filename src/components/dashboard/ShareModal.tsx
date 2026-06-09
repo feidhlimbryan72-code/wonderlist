@@ -103,6 +103,9 @@ export const ShareModal: React.FC<ShareModalProps> = ({ list, onClose }) => {
               )}
             </button>
           </div>
+          <p className="text-[10px] text-slate-500 dark:text-slate-400 bg-slate-100/50 dark:bg-white/5 p-2.5 rounded-xl border border-slate-200/20 dark:border-white/5 leading-normal mt-3">
+            <strong>Note:</strong> Invitations are delivered in-app! Your collaborator will instantly see an invitation notification banner in their Wonderlist sidebar when they log in with this email address.
+          </p>
         </form>
 
         {/* Collaborators List */}

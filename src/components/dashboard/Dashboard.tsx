@@ -125,7 +125,7 @@ export const Dashboard: React.FC = () => {
       style={bgStyle}
     >
       {/* Background Overlay for Soft Contrast */}
-      <div className="absolute inset-0 bg-slate-950/10 dark:bg-black/40 pointer-events-none z-0"></div>
+      <div className="absolute inset-0 bg-slate-950/30 dark:bg-black/60 pointer-events-none z-0"></div>
 
       {/* Main Sidebar */}
       <Sidebar
