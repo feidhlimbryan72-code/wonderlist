@@ -6,10 +6,18 @@ services:
     staticPublishPath: dist
     envVars:
       - key: VITE_SUPABASE_URL
-        placeholder: "Enter your Supabase URL"
+        fromInput: supabaseUrl
       - key: VITE_SUPABASE_ANON_KEY
-        placeholder: "Enter your Supabase Anon Public Key"
+        fromInput: supabaseAnonKey
     routes:
       - type: rewrite
         source: /*
         destination: /index.html
+
+parameters:
+  - key: supabaseUrl
+    description: The URL of your Supabase project (e.g., https://xyz.supabase.co)
+    required: true
+  - key: supabaseAnonKey
+    description: The anonymous public API key of your Supabase project
+    required: true
