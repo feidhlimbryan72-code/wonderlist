@@ -3,6 +3,8 @@
 -- ==========================================
 drop trigger if exists on_auth_user_created on auth.users;
 drop function if exists public.handle_new_user() cascade;
+drop function if exists public.is_list_owner(uuid, uuid) cascade;
+drop function if exists public.has_list_access(uuid, uuid, text) cascade;
 drop table if exists public.tasks cascade;
 drop table if exists public.list_shares cascade;
 drop table if exists public.lists cascade;
@@ -58,7 +60,7 @@ create table public.tasks (
 );
 
 -- ==========================================
--- 2. AUTOMATIC USER PROFILE TRIGGER
+-- 2. HELPER FUNCTIONS & TRIGGERS
 -- ==========================================
 
 -- Create profile trigger on signup
@@ -80,6 +82,31 @@ create or replace trigger on_auth_user_created
   after insert on auth.users
   for each row execute procedure public.handle_new_user();
 
+-- Security Definer: Checks if user owns a list (bypasses RLS recursion)
+create or replace function public.is_list_owner(list_id uuid, user_id uuid)
+returns boolean as $$
+begin
+  return exists (
+    select 1 from public.lists
+    where id = $1 and owner_id = $2
+  );
+end;
+$$ language plpgsql security definer;
+
+-- Security Definer: Checks if user has access to list (owner or collaborator)
+create or replace function public.has_list_access(list_id uuid, user_id uuid, user_email text)
+returns boolean as $$
+begin
+  return exists (
+    select 1 from public.lists
+    where id = $1 and owner_id = $2
+  ) or exists (
+    select 1 from public.list_shares
+    where list_id = $1 and invited_email = $3 and status = 'accepted'
+  );
+end;
+$$ language plpgsql security definer;
+
 -- ==========================================
 -- 3. ROW LEVEL SECURITY (RLS) POLICIES
 -- ==========================================
@@ -99,16 +126,10 @@ create policy "Users can update their own profile"
   on public.profiles for update
   using (auth.uid() = id);
 
--- Lists Policies
+-- Lists Policies (utilizes has_list_access helper)
 create policy "Users can view lists they own or are shared with"
   on public.lists for select
-  using (
-    owner_id = auth.uid() or 
-    id in (
-      select list_id from public.list_shares 
-      where invited_email = auth.jwt()->>'email' and status = 'accepted'
-    )
-  );
+  using (public.has_list_access(id, auth.uid(), auth.jwt()->>'email'));
 
 create policy "Users can create lists"
   on public.lists for insert
@@ -116,73 +137,42 @@ create policy "Users can create lists"
 
 create policy "Users can update lists they own or are shared with"
   on public.lists for update
-  using (
-    owner_id = auth.uid() or 
-    id in (
-      select list_id from public.list_shares 
-      where invited_email = auth.jwt()->>'email' and status = 'accepted'
-    )
-  );
+  using (public.has_list_access(id, auth.uid(), auth.jwt()->>'email'));
 
 create policy "Only owners can delete lists"
   on public.lists for delete
-  using (owner_id = auth.uid());
+  using (public.is_list_owner(id, auth.uid()));
 
--- List Shares Policies
+-- List Shares Policies (utilizes is_list_owner helper)
 create policy "Users can view shares for lists they own or are invited to"
   on public.list_shares for select
   using (
     invited_email = auth.jwt()->>'email' or
-    exists (
-      select 1 from public.lists 
-      where id = list_shares.list_id and owner_id = auth.uid()
-    )
+    public.is_list_owner(list_id, auth.uid())
   );
 
 create policy "Only list owners can insert shares"
   on public.list_shares for insert
-  with check (
-    exists (
-      select 1 from public.lists 
-      where id = list_shares.list_id and owner_id = auth.uid()
-    )
-  );
+  with check (public.is_list_owner(list_id, auth.uid()));
 
 create policy "Users can update shares (accept invite or owner updates)"
   on public.list_shares for update
   using (
     invited_email = auth.jwt()->>'email' or
-    exists (
-      select 1 from public.lists 
-      where id = list_shares.list_id and owner_id = auth.uid()
-    )
+    public.is_list_owner(list_id, auth.uid())
   );
 
 create policy "Users can delete shares (owner cancels or invitee rejects)"
   on public.list_shares for delete
   using (
     invited_email = auth.jwt()->>'email' or
-    exists (
-      select 1 from public.lists 
-      where id = list_shares.list_id and owner_id = auth.uid()
-    )
+    public.is_list_owner(list_id, auth.uid())
   );
 
--- Tasks Policies
+-- Tasks Policies (utilizes has_list_access helper)
 create policy "Users can perform actions on tasks if they have access to the parent list"
   on public.tasks for all
-  using (
-    exists (
-      select 1 from public.lists 
-      where id = tasks.list_id and (
-        owner_id = auth.uid() or 
-        id in (
-          select list_id from public.list_shares 
-          where invited_email = auth.jwt()->>'email' and status = 'accepted'
-        )
-      )
-    )
-  );
+  using (public.has_list_access(list_id, auth.uid(), auth.jwt()->>'email'));
 
 -- ==========================================
 -- 4. REALTIME ENABLEMENT
