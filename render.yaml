@@ -1,0 +1,15 @@
+services:
+  - type: web
+    name: wonderlist-clone
+    env: static
+    buildCommand: npm run build
+    staticPublishPath: dist
+    envVars:
+      - key: VITE_SUPABASE_URL
+        placeholder: "Enter your Supabase URL"
+      - key: VITE_SUPABASE_ANON_KEY
+        placeholder: "Enter your Supabase Anon Public Key"
+    routes:
+      - type: rewrite
+        source: /*
+        destination: /index.html
