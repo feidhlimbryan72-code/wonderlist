@@ -122,6 +122,10 @@ create policy "Users can view all profiles"
   on public.profiles for select
   using (auth.uid() is not null);
 
+create policy "Users can insert their own profile"
+  on public.profiles for insert
+  with check (auth.uid() = id);
+
 create policy "Users can update their own profile"
   on public.profiles for update
   using (auth.uid() = id);
@@ -182,3 +186,11 @@ create policy "Users can perform actions on tasks if they have access to the par
 alter publication supabase_realtime add table public.lists;
 alter publication supabase_realtime add table public.tasks;
 alter publication supabase_realtime add table public.list_shares;
+
+-- ==========================================
+-- 5. BACKFILL EXISTING USERS
+-- ==========================================
+insert into public.profiles (id, email, full_name, avatar_url)
+select id, email, coalesce(raw_user_meta_data->>'full_name', ''), coalesce(raw_user_meta_data->>'avatar_url', '')
+from auth.users
+on conflict (id) do nothing;
