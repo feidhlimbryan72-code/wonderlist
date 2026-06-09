@@ -6,7 +6,8 @@ import { ShareModal } from './ShareModal'
 import { useLists, useTasks } from '../../hooks/useQueries'
 import { useRealtimeSubscription } from '../../hooks/useRealtime'
 import type { Task, ThemeBackground, BackgroundOption } from '../../types'
-import { Image, CheckCircle, Moon, Sun } from 'lucide-react'
+import { Image, CheckCircle, Moon, Sun, BellDot, X } from 'lucide-react'
+import { useReminders } from '../../hooks/useReminders'
 
 const BACKGROUND_OPTIONS: BackgroundOption[] = [
   { 
@@ -57,6 +58,7 @@ const BACKGROUND_IMAGES: Record<string, string> = {
 
 export const Dashboard: React.FC = () => {
   const { lists } = useLists()
+  const { activeAlerts, dismissAlert } = useReminders()
   const [activeListId, setActiveListId] = useState<string | undefined>(undefined)
   const [selectedTask, setSelectedTask] = useState<Task | null>(null)
   
@@ -246,6 +248,36 @@ export const Dashboard: React.FC = () => {
           onClose={() => setShowShareModal(false)}
         />
       )}
+
+      {/* Floating In-App Reminder Alerts */}
+      <div className="fixed top-4 left-1/2 -translate-x-1/2 z-50 flex flex-col gap-2.5 w-full max-w-sm px-4">
+        {activeAlerts.map((alert) => (
+          <div
+            key={alert.id}
+            className="w-full bg-slate-900/95 dark:bg-white/95 border border-amber-500/30 text-white dark:text-slate-900 px-4 py-3 rounded-2xl shadow-2xl flex items-center justify-between gap-3 animate-slide-in backdrop-blur-md"
+          >
+            <div className="flex items-center gap-2.5 min-w-0">
+              <div className="p-2 bg-amber-500/10 dark:bg-amber-500/20 text-amber-500 rounded-xl shrink-0">
+                <BellDot className="w-4.5 h-4.5 animate-bounce" />
+              </div>
+              <div className="overflow-hidden">
+                <p className="text-[10px] font-bold text-amber-500 uppercase tracking-wider leading-none mb-1">
+                  Reminder
+                </p>
+                <p className="text-xs font-semibold truncate leading-tight">
+                  {alert.task.title}
+                </p>
+              </div>
+            </div>
+            <button
+              onClick={() => dismissAlert(alert.id)}
+              className="p-1 hover:bg-slate-800 dark:hover:bg-slate-200 rounded-lg text-slate-400 dark:text-slate-500 transition-colors shrink-0 cursor-pointer"
+            >
+              <X className="w-4 h-4" />
+            </button>
+          </div>
+        ))}
+      </div>
     </div>
   )
 }

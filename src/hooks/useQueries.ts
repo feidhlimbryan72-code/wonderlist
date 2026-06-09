@@ -19,12 +19,22 @@ export const useLists = () => {
         .from('lists')
         .select(`
           *,
-          owner:profiles!lists_owner_id_fkey(*)
+          owner:profiles!lists_owner_id_fkey(*),
+          list_shares(invited_email, status)
         `)
         .order('created_at', { ascending: true })
 
       if (error) throw error
-      return data as List[]
+
+      const filtered = (data as any[]).filter(list => {
+        if (list.owner_id === user.id) return true
+        const userShare = list.list_shares?.find(
+          (share: any) => share.invited_email?.toLowerCase() === user.email?.toLowerCase()
+        )
+        return userShare?.status === 'accepted'
+      })
+
+      return filtered as List[]
     },
     enabled: !!user,
   })
