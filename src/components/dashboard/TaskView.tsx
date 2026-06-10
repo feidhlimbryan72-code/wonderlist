@@ -250,8 +250,18 @@ export const TaskView: React.FC<TaskViewProps> = ({
                   </div>
                 </div>
 
-                <div className="shrink-0 text-slate-300 dark:text-slate-700">
-                  <ChevronRight className="w-4.5 h-4.5" />
+                <div className="flex items-center gap-2 shrink-0">
+                  {task.assignee && (
+                    <div 
+                      className="w-6 h-6 rounded-full bg-purple-500/10 dark:bg-purple-500/20 border border-purple-500/30 flex items-center justify-center text-[10px] font-bold text-purple-600 dark:text-purple-400 uppercase shrink-0"
+                      title={`Assigned to ${task.assignee.full_name || task.assignee.email}`}
+                    >
+                      {task.assignee.full_name?.charAt(0) || task.assignee.email?.charAt(0) || '?'}
+                    </div>
+                  )}
+                  <div className="text-slate-300 dark:text-slate-700">
+                    <ChevronRight className="w-4.5 h-4.5" />
+                  </div>
                 </div>
               </div>
             )
@@ -321,8 +331,18 @@ export const TaskView: React.FC<TaskViewProps> = ({
                         </div>
                       </div>
 
-                      <div className="shrink-0 text-slate-300 dark:text-slate-700">
-                        <ChevronRight className="w-4 h-4" />
+                      <div className="flex items-center gap-2 shrink-0">
+                        {task.assignee && (
+                          <div 
+                            className="w-6 h-6 rounded-full bg-purple-500/10 dark:bg-purple-500/20 border border-purple-500/30 flex items-center justify-center text-[10px] font-bold text-purple-600 dark:text-purple-400 uppercase shrink-0 opacity-75"
+                            title={`Assigned to ${task.assignee.full_name || task.assignee.email}`}
+                          >
+                            {task.assignee.full_name?.charAt(0) || task.assignee.email?.charAt(0) || '?'}
+                          </div>
+                        )}
+                        <div className="text-slate-300 dark:text-slate-700">
+                          <ChevronRight className="w-4 h-4" />
+                        </div>
                       </div>
                     </div>
                   )

@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react'
 import type { Task } from '../../types'
-import { useTasks } from '../../hooks/useQueries'
-import { X, Calendar, Bell, Trash2, CheckSquare, Square, FileText, Clock } from 'lucide-react'
+import { useTasks, useListMembers } from '../../hooks/useQueries'
+import { X, Calendar, Bell, Trash2, CheckSquare, Square, FileText, Clock, User } from 'lucide-react'
 
 interface TaskDetailPanelProps {
   task: Task
@@ -11,6 +11,7 @@ interface TaskDetailPanelProps {
 
 export const TaskDetailPanel: React.FC<TaskDetailPanelProps> = ({ task, listId, onClose }) => {
   const { updateTask, deleteTask } = useTasks(listId)
+  const { members } = useListMembers(listId)
 
   const [title, setTitle] = useState(task.title)
   const [notes, setNotes] = useState(task.notes || '')
@@ -68,6 +69,18 @@ export const TaskDetailPanel: React.FC<TaskDetailPanelProps> = ({ task, listId, 
       })
     } catch (err) {
       alert('Failed to update reminder')
+    }
+  }
+
+  const handleAssigneeChange = async (e: React.ChangeEvent<HTMLSelectElement>) => {
+    const value = e.target.value || null
+    try {
+      await updateTask({
+        taskId: task.id,
+        updates: { assigned_to: value }
+      })
+    } catch (err) {
+      alert('Failed to update assignee')
     }
   }
 
@@ -157,6 +170,26 @@ export const TaskDetailPanel: React.FC<TaskDetailPanelProps> = ({ task, listId, 
             onChange={handleDueDateChange}
             className="w-full px-3 py-2.5 bg-slate-100/60 dark:bg-slate-800/40 border border-slate-300/40 dark:border-white/5 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500/50 text-slate-800 dark:text-white text-xs transition-all"
           />
+        </div>
+
+        {/* Assignee Section */}
+        <div className="space-y-2">
+          <label className="text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider flex items-center gap-1.5">
+            <User className="w-3.5 h-3.5 text-purple-500" />
+            <span>Assign To</span>
+          </label>
+          <select
+            value={task.assigned_to || ''}
+            onChange={handleAssigneeChange}
+            className="w-full px-3 py-2.5 bg-slate-100/60 dark:bg-slate-800/40 border border-slate-300/40 dark:border-white/5 rounded-xl focus:outline-none focus:ring-2 focus:ring-purple-500/50 text-slate-800 dark:text-white text-xs transition-all cursor-pointer"
+          >
+            <option value="" className="text-slate-800 dark:text-white">Unassigned</option>
+            {members.map((member) => (
+              <option key={member.id} value={member.id} className="text-slate-800 dark:text-white">
+                {member.full_name || member.email}
+              </option>
+            ))}
+          </select>
         </div>
 
         {/* Reminder Section */}

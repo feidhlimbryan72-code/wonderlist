@@ -33,8 +33,10 @@ export interface Task {
   reminder_at: string | null
   notes: string | null
   created_by: string | null
+  assigned_to: string | null
   created_at: string
   updated_at: string
+  assignee?: Profile
 }
 
 export type ThemeBackground = 'wood' | 'mountain' | 'sunset' | 'forest' | 'classic-blue' | 'charcoal';

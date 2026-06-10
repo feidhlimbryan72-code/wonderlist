@@ -114,7 +114,10 @@ export const useTasks = (listId: string | undefined) => {
       if (!listId) return []
       const { data, error } = await supabase
         .from('tasks')
-        .select('*')
+        .select(`
+          *,
+          assignee:profiles!tasks_assigned_to_fkey(*)
+        `)
         .eq('list_id', listId)
         .order('created_at', { ascending: true })
 
@@ -126,7 +129,7 @@ export const useTasks = (listId: string | undefined) => {
 
   // Create task mutation
   const createTaskMutation = useMutation({
-    mutationFn: async ({ title, dueDate, reminderAt }: { title: string; dueDate?: string | null; reminderAt?: string | null }) => {
+    mutationFn: async ({ title, dueDate, reminderAt, assignedTo }: { title: string; dueDate?: string | null; reminderAt?: string | null; assignedTo?: string | null }) => {
       if (!listId || !user) throw new Error('Missing listId or user')
       const { data, error } = await supabase
         .from('tasks')
@@ -136,9 +139,13 @@ export const useTasks = (listId: string | undefined) => {
           is_completed: false,
           due_date: dueDate || null,
           reminder_at: reminderAt || null,
-          created_by: user.id
+          created_by: user.id,
+          assigned_to: assignedTo || null
         })
-        .select()
+        .select(`
+          *,
+          assignee:profiles!tasks_assigned_to_fkey(*)
+        `)
         .single()
 
       if (error) throw error
@@ -159,7 +166,10 @@ export const useTasks = (listId: string | undefined) => {
           updated_at: new Date().toISOString()
         })
         .eq('id', taskId)
-        .select()
+        .select(`
+          *,
+          assignee:profiles!tasks_assigned_to_fkey(*)
+        `)
         .single()
 
       if (error) throw error
@@ -339,5 +349,62 @@ export const usePendingInvites = () => {
     isLoading,
     acceptInvite: acceptInviteMutation.mutateAsync,
     declineInvite: declineInviteMutation.mutateAsync,
+  }
+}
+
+// --- LIST MEMBERS HOOK ---
+
+export const useListMembers = (listId: string | undefined) => {
+  const { data: members = [], isLoading } = useQuery<any[]>({
+    queryKey: ['list-members', listId],
+    queryFn: async () => {
+      if (!listId) return []
+
+      // 1. Get the list owner's profile first
+      const { data: listData } = await supabase
+        .from('lists')
+        .select('owner_id, owner:profiles!lists_owner_id_fkey(*)')
+        .eq('id', listId)
+        .single()
+
+      // 2. Get all accepted shares' emails
+      const { data: sharesData } = await supabase
+        .from('list_shares')
+        .select('invited_email')
+        .eq('list_id', listId)
+        .eq('status', 'accepted')
+
+      if (!listData) return []
+
+      const ownerProfile = (listData as any).owner
+      const memberList = ownerProfile ? [ownerProfile] : []
+
+      if (!sharesData || sharesData.length === 0) {
+        return memberList
+      }
+
+      // 3. Fetch profiles matching the shared emails
+      const sharedEmails = sharesData.map(s => s.invited_email.toLowerCase())
+      const { data: profilesData } = await supabase
+        .from('profiles')
+        .select('*')
+        .in('email', sharedEmails)
+
+      if (profilesData) {
+        memberList.push(...profilesData)
+      }
+
+      // De-duplicate members by ID
+      const uniqueMembers = memberList.filter(
+        (value, index, self) => self.findIndex(m => m.id === value.id) === index
+      )
+      return uniqueMembers
+    },
+    enabled: !!listId,
+  })
+
+  return {
+    members,
+    isLoading,
   }
 }
