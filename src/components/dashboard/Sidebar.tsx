@@ -2,6 +2,7 @@ import React, { useState } from 'react'
 import { useAuth } from '../../context/AuthContext'
 import { useLists, usePendingInvites } from '../../hooks/useQueries'
 import type { List } from '../../types'
+import logoImg from '../../assets/logo.png'
 import { 
   LogOut, Plus, ListTodo, Users, 
   Trash2, Edit3, Check, X, BellDot
@@ -115,6 +116,11 @@ export const Sidebar: React.FC<SidebarProps> = ({
         ${isMobileOpen ? 'translate-x-0' : '-translate-x-full'}
       `}>
         
+        {/* App Logo & Branding */}
+        <div className="p-4 pt-5 pb-4 flex items-center justify-center border-b border-slate-200/20 dark:border-white/5 bg-white/70 dark:bg-slate-950/40 shrink-0">
+          <img src={logoImg} alt="Festival Flags Logo" className="h-12 w-auto object-contain" />
+        </div>
+
         {/* User Profile Header */}
         <div className="p-4 border-b border-slate-200/20 dark:border-white/5 flex items-center justify-between">
           <div className="flex items-center gap-3">
@@ -123,7 +129,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
             </div>
             <div className="overflow-hidden">
               <h2 className="font-semibold text-sm leading-tight truncate">
-                {profile?.full_name || 'My Wonderlist'}
+                {profile?.full_name || 'Festival Flags'}
               </h2>
               <p className="text-[10px] text-slate-500 dark:text-slate-400 truncate max-w-[150px]">
                 {user?.email}

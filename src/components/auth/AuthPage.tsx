@@ -1,6 +1,7 @@
 import React, { useState } from 'react'
 import { supabase } from '../../lib/supabaseClient'
 import { LogIn, UserPlus, CheckCircle, Mail, Lock, User, AlertCircle } from 'lucide-react'
+import logoImg from '../../assets/logo.png'
 
 export const AuthPage: React.FC = () => {
   const [isSignUp, setIsSignUp] = useState(false)
@@ -84,13 +85,13 @@ export const AuthPage: React.FC = () => {
         
         {/* Header decoration */}
         <div className="p-8 pb-6 text-center">
-          <div className="inline-flex items-center justify-center p-3 bg-blue-500/10 rounded-2xl mb-4 text-blue-600 dark:text-blue-400 border border-blue-500/20">
-            <CheckCircle className="w-8 h-8" />
+          <div className="flex justify-center mb-5 bg-white/85 dark:bg-slate-900/60 p-4 rounded-2xl shadow-sm border border-slate-200/20">
+            <img src={logoImg} alt="Festival Flags Logo" className="h-20 w-auto object-contain" />
           </div>
-          <h1 className="text-3xl font-extrabold tracking-tight text-slate-800 dark:text-white mb-2">
-            Wonderlist
+          <h1 className="text-2xl font-extrabold tracking-tight text-slate-800 dark:text-white mb-1">
+            Festival Flags
           </h1>
-          <p className="text-slate-600 dark:text-slate-300 text-sm">
+          <p className="text-slate-600 dark:text-slate-300 text-xs">
             {isSignUp ? 'Create your collaborative space' : 'Welcome back to your lists'}
           </p>
         </div>
