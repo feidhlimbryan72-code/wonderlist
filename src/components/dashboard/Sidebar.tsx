@@ -117,7 +117,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
       `}>
         
         {/* App Logo & Branding */}
-        <div className="p-4 pt-5 pb-4 flex items-center justify-center border-b border-slate-200/20 dark:border-white/5 bg-white/70 dark:bg-slate-950/40 shrink-0">
+        <div className="p-4 pt-5 pb-4 flex items-center justify-center border-b border-slate-200 dark:border-slate-800 bg-white shrink-0">
           <img src={logoImg} alt="Festival Flags Logo" className="h-12 w-auto object-contain" />
         </div>
 

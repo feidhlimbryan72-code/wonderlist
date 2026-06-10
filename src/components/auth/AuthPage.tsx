@@ -85,7 +85,7 @@ export const AuthPage: React.FC = () => {
         
         {/* Header decoration */}
         <div className="p-8 pb-6 text-center">
-          <div className="flex justify-center mb-5 bg-white/85 dark:bg-slate-900/60 p-4 rounded-2xl shadow-sm border border-slate-200/20">
+          <div className="flex justify-center mb-5 bg-white p-4 rounded-2xl shadow-sm border border-slate-200/50">
             <img src={logoImg} alt="Festival Flags Logo" className="h-20 w-auto object-contain" />
           </div>
           <h1 className="text-2xl font-extrabold tracking-tight text-slate-800 dark:text-white mb-1">
