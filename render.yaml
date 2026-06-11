@@ -1,6 +1,6 @@
 services:
   - type: web
-    name: wonderlist-clone
+    name: task-tracker
     env: static
     buildCommand: npm run build
     staticPublishPath: dist
