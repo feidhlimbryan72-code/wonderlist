@@ -3,10 +3,10 @@ import { Sidebar } from './Sidebar'
 import { TaskView } from './TaskView'
 import { TaskDetailPanel } from './TaskDetailPanel'
 import { ShareModal } from './ShareModal'
-import { useLists, useTasks } from '../../hooks/useQueries'
+import { useLists, useTasks, usePendingInvites } from '../../hooks/useQueries'
 import { useRealtimeSubscription } from '../../hooks/useRealtime'
 import type { Task, ThemeBackground, BackgroundOption } from '../../types'
-import { Image, CheckCircle, Moon, Sun, BellDot, X } from 'lucide-react'
+import { Image, CheckCircle, Moon, Sun, BellDot, X, Check } from 'lucide-react'
 import { useReminders } from '../../hooks/useReminders'
 
 const BACKGROUND_OPTIONS: BackgroundOption[] = [
@@ -59,12 +59,35 @@ const BACKGROUND_IMAGES: Record<string, string> = {
 export const Dashboard: React.FC = () => {
   const { lists } = useLists()
   const { activeAlerts, dismissAlert } = useReminders()
+  const { invitations, acceptInvite, declineInvite } = usePendingInvites()
   const [activeListId, setActiveListId] = useState<string | undefined>(undefined)
   const [selectedTask, setSelectedTask] = useState<Task | null>(null)
   
   const [isMobileOpen, setIsMobileOpen] = useState(false)
   const [showShareModal, setShowShareModal] = useState(false)
   const [showThemePanel, setShowThemePanel] = useState(false)
+
+  const handleAcceptInvite = async (inviteId: string, e: React.MouseEvent) => {
+    e.stopPropagation()
+    try {
+      await acceptInvite(inviteId)
+      const invite = invitations.find(i => i.id === inviteId)
+      if (invite?.list_id) {
+        setActiveListId(invite.list_id)
+      }
+    } catch (err: any) {
+      alert('Failed to accept invitation: ' + (err.message || err))
+    }
+  }
+
+  const handleDeclineInvite = async (inviteId: string, e: React.MouseEvent) => {
+    e.stopPropagation()
+    try {
+      await declineInvite(inviteId)
+    } catch (err: any) {
+      alert('Failed to decline invitation: ' + (err.message || err))
+    }
+  }
   
   const [bgTheme, setBgTheme] = useState<ThemeBackground>(() => {
     return (localStorage.getItem('wonderlist-bg') as ThemeBackground) || 'forest'
@@ -222,12 +245,56 @@ export const Dashboard: React.FC = () => {
               </div>
             )}
           </div>
+        ) : invitations.length > 0 ? (
+          <div className="flex-1 flex flex-col items-center justify-center p-8 text-center text-slate-800 dark:text-white relative z-10">
+            <div className="w-full max-w-md bg-white/95 dark:bg-slate-900/95 border border-slate-200 dark:border-slate-800 rounded-3xl p-6 shadow-2xl relative z-10 backdrop-blur-md animate-fade-in">
+              <div className="flex items-center gap-2 text-sm font-bold text-amber-600 dark:text-amber-400 uppercase tracking-wider mb-4 justify-center">
+                <BellDot className="w-5 h-5 animate-pulse" />
+                <span>Pending Invitations ({invitations.length})</span>
+              </div>
+              <p className="text-xs text-slate-500 dark:text-slate-400 mb-5 leading-relaxed">
+                You have been invited to collaborate on the following task lists. Accept to start sharing tasks!
+              </p>
+              
+              <div className="space-y-3 max-h-72 overflow-y-auto text-left pr-1">
+                {invitations.map((invite) => (
+                  <div 
+                    key={invite.id} 
+                    className="p-4 bg-slate-50/80 dark:bg-slate-950/80 border border-slate-200 dark:border-slate-800 rounded-2xl flex flex-col gap-3.5 shadow-sm"
+                  >
+                    <div>
+                      <h4 className="font-bold text-sm text-slate-950 dark:text-white leading-snug">
+                        "{invite.list?.name}"
+                      </h4>
+                      <p className="text-[11px] text-slate-500 dark:text-slate-400 mt-1">
+                        Invited by <strong className="text-slate-700 dark:text-slate-300 font-semibold">{invite.list?.owner?.full_name || invite.list?.owner?.email}</strong>
+                      </p>
+                    </div>
+                    <div className="flex gap-2">
+                      <button
+                        onClick={(e) => handleAcceptInvite(invite.id, e)}
+                        className="flex-1 py-2 bg-green-600 hover:bg-green-700 text-white rounded-xl text-xs font-semibold flex items-center justify-center gap-1 cursor-pointer transition-colors shadow-sm"
+                      >
+                        <Check className="w-3.5 h-3.5" /> Accept
+                      </button>
+                      <button
+                        onClick={(e) => handleDeclineInvite(invite.id, e)}
+                        className="py-2 px-4 bg-slate-200 hover:bg-slate-300 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 rounded-xl text-xs font-semibold cursor-pointer transition-colors"
+                      >
+                        Decline
+                      </button>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
         ) : (
-          <div className="flex-1 flex flex-col items-center justify-center p-8 text-center text-slate-500 dark:text-slate-400">
+          <div className="flex-1 flex flex-col items-center justify-center p-8 text-center text-slate-500 dark:text-slate-400 relative z-10">
             <div className="p-4 bg-white/20 dark:bg-white/5 border border-white/30 dark:border-white/5 rounded-3xl mb-4 shadow-xl backdrop-blur-md">
               <CheckCircle className="w-12 h-12 text-blue-500" />
             </div>
-            <h3 className="text-lg font-bold">Welcome to Wonderlist</h3>
+            <h3 className="text-lg font-bold">Welcome to Festival Flags</h3>
             <p className="text-xs max-w-sm mt-1">
               Select an existing list from the sidebar, or create a brand new task list to get started.
             </p>
