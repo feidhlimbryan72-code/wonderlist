@@ -13,6 +13,7 @@ export const ShareModal: React.FC<ShareModalProps> = ({ list, onClose }) => {
   const [email, setEmail] = useState('')
   const [error, setError] = useState<string | null>(null)
   const [success, setSuccess] = useState<string | null>(null)
+  const [lastInvitedEmail, setLastInvitedEmail] = useState<string | null>(null)
   const [loading, setLoading] = useState(false)
 
   const handleInvite = async (e: React.FormEvent) => {
@@ -26,12 +27,26 @@ export const ShareModal: React.FC<ShareModalProps> = ({ list, onClose }) => {
     try {
       await inviteUser(email.trim())
       setSuccess(`Invitation sent to ${email.trim()}!`)
+      setLastInvitedEmail(email.trim())
       setEmail('')
     } catch (err: any) {
       setError(err.message || 'Failed to send invitation.')
     } finally {
       setLoading(false)
     }
+  }
+
+  const getMailtoLink = (invitedEmail: string) => {
+    const subject = encodeURIComponent(`Invitation to collaborate on "${list.name}"`)
+    const body = encodeURIComponent(
+      `Hi,\n\n` +
+      `I have invited you to collaborate on my task list "${list.name}" on the Festival Flags Task Tracker.\n\n` +
+      `Please sign in or create an account at:\n` +
+      `https://task-tracker.onrender.com\n\n` +
+      `Once logged in, you will see the invitation notification banner at the top of your sidebar to accept it and start collaborating!\n\n` +
+      `Best regards`
+    )
+    return `mailto:${invitedEmail}?subject=${subject}&body=${body}`
   }
 
   const handleRemove = async (shareId: string, userEmail: string) => {
@@ -73,9 +88,16 @@ export const ShareModal: React.FC<ShareModalProps> = ({ list, onClose }) => {
               {error}
             </div>
           )}
-          {success && (
-            <div className="p-3 bg-green-500/10 border border-green-500/20 rounded-xl text-xs text-green-600 dark:text-green-400">
-              {success}
+          {success && lastInvitedEmail && (
+            <div className="p-3 bg-green-500/10 border border-green-500/20 rounded-xl text-xs text-green-600 dark:text-green-400 space-y-2 flex flex-col items-start">
+              <p>{success}</p>
+              <a
+                href={getMailtoLink(lastInvitedEmail)}
+                className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-green-600 hover:bg-green-700 text-white rounded-lg font-medium text-[11px] shadow-sm transition-all cursor-pointer"
+              >
+                <Mail className="w-3.5 h-3.5" />
+                <span>Send Email Invitation Details</span>
+              </a>
             </div>
           )}
 
