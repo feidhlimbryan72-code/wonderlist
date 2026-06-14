@@ -3,8 +3,10 @@ import { Sidebar } from './Sidebar'
 import { TaskView } from './TaskView'
 import { TaskDetailPanel } from './TaskDetailPanel'
 import { ShareModal } from './ShareModal'
+import { AnalyticsModal } from './AnalyticsModal'
 import { useLists, useTasks, usePendingInvites } from '../../hooks/useQueries'
 import { useRealtimeSubscription } from '../../hooks/useRealtime'
+import { useAuth } from '../../context/AuthContext'
 import type { Task, ThemeBackground, BackgroundOption } from '../../types'
 import { Image, CheckCircle, Moon, Sun, BellDot, X, Check } from 'lucide-react'
 import { useReminders } from '../../hooks/useReminders'
@@ -57,6 +59,7 @@ const BACKGROUND_IMAGES: Record<string, string> = {
 }
 
 export const Dashboard: React.FC = () => {
+  const { user } = useAuth()
   const { lists } = useLists()
   const { activeAlerts, dismissAlert } = useReminders()
   const { invitations, acceptInvite, declineInvite } = usePendingInvites()
@@ -65,6 +68,7 @@ export const Dashboard: React.FC = () => {
   
   const [isMobileOpen, setIsMobileOpen] = useState(false)
   const [showShareModal, setShowShareModal] = useState(false)
+  const [showAnalyticsModal, setShowAnalyticsModal] = useState(false)
   const [showThemePanel, setShowThemePanel] = useState(false)
 
   const handleAcceptInvite = async (inviteId: string, e: React.MouseEvent) => {
@@ -124,6 +128,13 @@ export const Dashboard: React.FC = () => {
   }
 
   const activeList = lists.find(l => l.id === activeListId)
+  
+  const userShare = activeList?.list_shares?.find(
+    (s: any) => s.invited_email?.toLowerCase() === user?.email?.toLowerCase()
+  )
+  const userRole = activeList?.owner_id === user?.id 
+    ? 'owner' 
+    : (userShare?.role || 'viewer')
   
   // Clean up selected task if active list changes or tasks are updated
   const { tasks } = useTasks(activeListId)
@@ -226,6 +237,7 @@ export const Dashboard: React.FC = () => {
             <TaskView
               list={activeList}
               onShareClick={() => setShowShareModal(true)}
+              onAnalyticsClick={() => setShowAnalyticsModal(true)}
               onTaskClick={setSelectedTask}
               selectedTaskId={selectedTask?.id}
               onMenuToggle={() => setIsMobileOpen(!isMobileOpen)}
@@ -240,6 +252,7 @@ export const Dashboard: React.FC = () => {
                     task={selectedTask}
                     listId={activeList.id}
                     onClose={() => setSelectedTask(null)}
+                    readOnly={userRole === 'viewer'}
                   />
                 </div>
               </div>
@@ -313,6 +326,14 @@ export const Dashboard: React.FC = () => {
         <ShareModal
           list={activeList}
           onClose={() => setShowShareModal(false)}
+        />
+      )}
+
+      {/* Analytics Modal popup */}
+      {showAnalyticsModal && activeList && (
+        <AnalyticsModal
+          list={activeList}
+          onClose={() => setShowAnalyticsModal(false)}
         />
       )}
 

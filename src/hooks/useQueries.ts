@@ -20,7 +20,7 @@ export const useLists = () => {
         .select(`
           *,
           owner:profiles!lists_owner_id_fkey(*),
-          list_shares(invited_email, status)
+          list_shares(invited_email, status, role)
         `)
         .order('created_at', { ascending: true })
 
@@ -229,9 +229,11 @@ export const useShares = (listId: string | undefined) => {
 
   // Invite user to list by email
   const inviteUserMutation = useMutation({
-    mutationFn: async (email: string) => {
+    mutationFn: async (arg: string | { email: string; role?: 'admin' | 'member' | 'viewer' }) => {
       if (!listId) throw new Error('Missing listId')
-      const normalizedEmail = email.trim().toLowerCase()
+      const emailStr = typeof arg === 'string' ? arg : arg.email
+      const roleStr = typeof arg === 'string' ? 'member' : (arg.role || 'member')
+      const normalizedEmail = emailStr.trim().toLowerCase()
 
       const { data, error } = await supabase
         .from('list_shares')
@@ -239,6 +241,7 @@ export const useShares = (listId: string | undefined) => {
           list_id: listId,
           invited_email: normalizedEmail,
           status: 'pending',
+          role: roleStr
         })
         .select()
         .single()
@@ -269,6 +272,26 @@ export const useShares = (listId: string | undefined) => {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['shares', listId] })
+      queryClient.invalidateQueries({ queryKey: ['lists'] })
+    },
+  })
+
+  // Update share role mutation
+  const updateShareRoleMutation = useMutation({
+    mutationFn: async ({ shareId, role }: { shareId: string; role: 'admin' | 'member' | 'viewer' }) => {
+      const { data, error } = await supabase
+        .from('list_shares')
+        .update({ role })
+        .eq('id', shareId)
+        .select()
+        .single()
+
+      if (error) throw error
+      return data as ListShare
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['shares', listId] })
+      queryClient.invalidateQueries({ queryKey: ['lists'] })
     },
   })
 
@@ -277,6 +300,7 @@ export const useShares = (listId: string | undefined) => {
     isLoading,
     inviteUser: inviteUserMutation.mutateAsync,
     removeShare: removeShareMutation.mutateAsync,
+    updateShareRole: updateShareRoleMutation.mutateAsync,
   }
 }
 

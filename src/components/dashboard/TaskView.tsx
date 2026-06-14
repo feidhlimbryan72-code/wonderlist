@@ -5,12 +5,13 @@ import { useAuth } from '../../context/AuthContext'
 import { 
   Plus, Calendar, Bell, ChevronDown, 
   ChevronRight, Circle, CheckCircle2, 
-  FileText, Menu, Share2
+  FileText, Menu, Share2, BarChart3
 } from 'lucide-react'
 
 interface TaskViewProps {
   list: List
   onShareClick: () => void
+  onAnalyticsClick: () => void
   onTaskClick: (task: Task) => void
   selectedTaskId: string | undefined
   onMenuToggle: () => void
@@ -19,12 +20,24 @@ interface TaskViewProps {
 export const TaskView: React.FC<TaskViewProps> = ({
   list,
   onShareClick,
+  onAnalyticsClick,
   onTaskClick,
   selectedTaskId,
   onMenuToggle,
 }) => {
   const { user } = useAuth()
   const { tasks, createTask, updateTask } = useTasks(list.id)
+
+  const userShare = list.list_shares?.find(
+    (s: any) => s.invited_email.toLowerCase() === user?.email?.toLowerCase()
+  )
+  const userRole = list.owner_id === user?.id 
+    ? 'owner' 
+    : (userShare?.role || 'viewer')
+
+  const isViewer = userRole === 'viewer'
+  const canManageSharing = userRole === 'owner' || userRole === 'admin'
+  const canViewAnalytics = userRole === 'owner' || userRole === 'admin'
   
   const [taskTitle, setTaskTitle] = useState('')
   const [dueDate, setDueDate] = useState('')
@@ -111,16 +124,29 @@ export const TaskView: React.FC<TaskViewProps> = ({
           </div>
         </div>
 
-        {/* Share Button (Only Owner can manage invites) */}
-        {isOwner && (
-          <button
-            onClick={onShareClick}
-            className="px-3.5 py-2 bg-white/40 dark:bg-white/5 hover:bg-white/70 dark:hover:bg-white/10 border border-slate-300/40 dark:border-white/5 rounded-xl text-xs font-semibold flex items-center gap-1.5 transition-all shadow-sm active:scale-95 cursor-pointer text-blue-600 dark:text-blue-400"
-          >
-            <Share2 className="w-3.5 h-3.5" />
-            <span>Share List</span>
-          </button>
-        )}
+        <div className="flex items-center gap-2">
+          {/* Analytics Button (Only Owner or Admin) */}
+          {canViewAnalytics && (
+            <button
+              onClick={onAnalyticsClick}
+              className="px-3.5 py-2 bg-white/40 dark:bg-white/5 hover:bg-white/70 dark:hover:bg-white/10 border border-slate-300/40 dark:border-white/5 rounded-xl text-xs font-semibold flex items-center gap-1.5 transition-all shadow-sm active:scale-95 cursor-pointer text-purple-600 dark:text-purple-400"
+            >
+              <BarChart3 className="w-3.5 h-3.5" />
+              <span>Analytics</span>
+            </button>
+          )}
+
+          {/* Share Button (Owner or Admin) */}
+          {canManageSharing && (
+            <button
+              onClick={onShareClick}
+              className="px-3.5 py-2 bg-white/40 dark:bg-white/5 hover:bg-white/70 dark:hover:bg-white/10 border border-slate-300/40 dark:border-white/5 rounded-xl text-xs font-semibold flex items-center gap-1.5 transition-all shadow-sm active:scale-95 cursor-pointer text-blue-600 dark:text-blue-400"
+            >
+              <Share2 className="w-3.5 h-3.5" />
+              <span>Share List</span>
+            </button>
+          )}
+        </div>
       </header>
 
       {/* Tasks Scrolling Area */}
@@ -136,8 +162,9 @@ export const TaskView: React.FC<TaskViewProps> = ({
               type="text"
               value={taskTitle}
               onChange={(e) => setTaskTitle(e.target.value)}
-              placeholder="Add a task..."
-              className="flex-1 bg-transparent border-0 focus:ring-0 p-0 text-sm text-slate-900 dark:text-white placeholder-slate-400 focus:outline-none"
+              placeholder={isViewer ? "You have read-only access to this list" : "Add a task..."}
+              disabled={isViewer}
+              className="flex-1 bg-transparent border-0 focus:ring-0 p-0 text-sm text-slate-900 dark:text-white placeholder-slate-400 focus:outline-none disabled:opacity-60"
             />
             
             {/* Quick Due Date Button */}
@@ -182,7 +209,7 @@ export const TaskView: React.FC<TaskViewProps> = ({
 
             <button
               type="submit"
-              disabled={!taskTitle.trim()}
+              disabled={!taskTitle.trim() || isViewer}
               className="px-3 py-1.5 bg-blue-600 hover:bg-blue-700 text-white rounded-xl text-xs font-semibold transition-all active:scale-95 disabled:opacity-50 disabled:active:scale-100 cursor-pointer"
             >
               Add
@@ -217,8 +244,12 @@ export const TaskView: React.FC<TaskViewProps> = ({
                 <div className="flex items-center gap-3 flex-1 min-w-0">
                   {/* Custom Checkbox */}
                   <button
-                    onClick={(e) => handleToggleComplete(task, e)}
-                    className="text-slate-400 hover:text-blue-500 transition-colors cursor-pointer shrink-0"
+                    onClick={(e) => {
+                      if (isViewer) return
+                      handleToggleComplete(task, e)
+                    }}
+                    disabled={isViewer}
+                    className="text-slate-400 hover:text-blue-500 transition-colors cursor-pointer shrink-0 disabled:hover:text-slate-400 disabled:cursor-not-allowed"
                   >
                     <Circle className="w-5 h-5" />
                   </button>
@@ -304,8 +335,12 @@ export const TaskView: React.FC<TaskViewProps> = ({
                       <div className="flex items-center gap-3 flex-1 min-w-0">
                         {/* Custom Checkbox */}
                         <button
-                          onClick={(e) => handleToggleComplete(task, e)}
-                          className="text-green-500 hover:text-slate-400 transition-colors cursor-pointer shrink-0"
+                          onClick={(e) => {
+                            if (isViewer) return
+                            handleToggleComplete(task, e)
+                          }}
+                          disabled={isViewer}
+                          className="text-green-500 hover:text-slate-400 transition-colors cursor-pointer shrink-0 disabled:hover:text-green-500 disabled:cursor-not-allowed"
                         >
                           <CheckCircle2 className="w-5 h-5" />
                         </button>

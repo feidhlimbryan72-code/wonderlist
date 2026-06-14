@@ -13,6 +13,7 @@ export interface List {
   created_at: string
   updated_at: string
   owner?: Profile
+  list_shares?: ListShare[]
 }
 
 export interface ListShare {
@@ -20,6 +21,7 @@ export interface ListShare {
   list_id: string
   invited_email: string
   status: 'pending' | 'accepted'
+  role: 'admin' | 'member' | 'viewer'
   created_at: string
   list?: List
 }
